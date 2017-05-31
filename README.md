@@ -243,6 +243,8 @@ modelAP3Coef= as.data.frame(t(modelAP3Coef))
 ```
 How with imputed data four
 ```{r}
+setwd("~/Google Drive/PARCS/Projects/ECLSK2011/Data/ImputedFirst")
+
 ECLSK4  = read.csv("ECLSK4.csv", header = TRUE)
 ECLSK4 = ECLSK4[c(-1)]
 ECLSK4 = as.data.frame(ECLSK4)
@@ -284,6 +286,8 @@ modelAP4Coef = as.data.frame(t(modelAP4Coef))
 ```
 Now with the fifth imputed data set
 ```{r}
+setwd("~/Google Drive/PARCS/Projects/ECLSK2011/Data/ImputedFirst")
+ 
 ECLSK5  = read.csv("ECLSK5.csv", header = TRUE)
 ECLSK5 = ECLSK5[c(-1)]
 ECLSK5 = as.data.frame(ECLSK5)
@@ -452,6 +456,33 @@ APModelAPombine = round(APModelAPombine,3)
 APModelAPombine$Sig = ifelse(APModelAPombine$P_Value <= .000, "***", ifelse( APModelAPombine$P_Value <= .01, "**", ifelse(APModelAPombine$P_Value <= .05, "*","NS")))
 
 APModelAPombine
+
+```
+Now we need to grab the means and standard deviations and combine them.  Need to transpose them, because Amelia takes the five different version and combines them.
+```{r}
+allSvyMeans = t(as.matrix(cbind(svyMean1, svyMean2, svyMean3, svyMean4, svyMean5)))
+# For Se's we need to create dataframes so that we can grab the se's them combine them
+SvySes1 = as.data.frame(svyMean1)
+SvySes2 = as.data.frame(svyMean2)
+SvySes3 = as.data.frame(svyMean3)
+SvySes4 = as.data.frame(svyMean4)
+SvySes5 = as.data.frame(svyMean5)
+
+SvySes1 = SvySes1$SE
+SvySes2 = SvySes2$SE
+SvySes3 = SvySes3$SE
+SvySes4 = SvySes4$SE
+SvySes5 = SvySes5$SE
+
+allSvySes = t(as.matrix(cbind(SvySes1, SvySes2, SvySes3, SvySes4, SvySes5)))
+
+allSvyMeansSes = mi.meld(q = allSvyMeans, se = allSvySes)
+
+allSvyMeansComb = t(as.data.frame(allSvyMeansSes$q.mi))
+allSvySesComb = t(as.data.frame(allSvyMeansSes$se.mi))
+
+allSvyMeansSesComb = data.frame(Mean = allSvyMeansComb, SE = allSvySesComb)
+
 
 ```
 
